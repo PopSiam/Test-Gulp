@@ -1,0 +1,23 @@
+parameters:
+  artifactName: ""
+  workingDirectory: ""
+  project: ""
+  includeBower: ""
+
+jobs:
+  - job:
+    variables:
+      NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
+    displayName: "Job - Build App Service"
+    steps:
+      - task: Gulp@1
+        condition: eq('${{ parameters.includeBower }}', true)
+        inputs:
+          gulpFile: "${{ parameters.workingDirectory }}/gulpfile.js"
+          targets: "precompile postcompile"
+          workingDirectory: "${{ parameters.workingDirectory }}"
+          enableCodeCoverage: false
+
+      - publish: $(Build.ArtifactStagingDirectory)
+        displayName: "Step - Publish Artifact"
+        artifact: "${{ parameters.artifactName }}"
